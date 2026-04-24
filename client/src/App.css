@@ -67,7 +67,7 @@ body {
 /* STATS GRID */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
 }
 
@@ -416,4 +416,36 @@ body {
   color: #9ca3af;
   font-size: 13px;
   padding: 30px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.chart-header h3 {
+  margin-bottom: 0;
+}
+
+.chart-loading {
+  font-size: 12px;
+  color: #9ca3af;
+  text-align: right;
+  margin-bottom: 8px;
+}
+
+.endpoint-banner {
+  background: rgba(79, 70, 229, 0.15);
+  border: 1px solid rgba(79, 70, 229, 0.4);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #a78bfa;
+  margin-bottom: 12px;
+}
+
+.endpoint-banner strong {
+  color: #e2e8f0;
 }

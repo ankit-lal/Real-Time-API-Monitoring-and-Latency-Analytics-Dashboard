@@ -17,6 +17,7 @@ function App() {
   const [alerts, setAlerts] = useState([]);
   const [connected, setConnected] = useState(false);
   const [simStatus, setSimStatus] = useState({ running: false });
+  const [selectedEndpoint, setSelectedEndpoint] = useState('all');
   const wsRef = useRef(null);
 
   const fetchData = async () => {
@@ -70,6 +71,25 @@ function App() {
     }
   };
 
+  // Compute filtered stats based on selected endpoint
+  const getFilteredStats = () => {
+    if (!stats) return null;
+    if (selectedEndpoint === 'all') return stats;
+
+    const epStat = stats.endpointStats.find(e => e.endpoint === selectedEndpoint);
+    if (!epStat) return stats;
+
+    return {
+      ...stats,
+      totalRequests: epStat.count,
+      avgLatency: epStat.avgLatency,
+      errorRate: epStat.errorRate,
+      successRate: parseFloat((100 - epStat.errorRate).toFixed(2)),
+      p95Latency: epStat.avgLatency,
+      requestsPerMinute: parseFloat((epStat.count / 60).toFixed(2))
+    };
+  };
+
   return (
     <div className="app">
       <header className="header">
@@ -85,9 +105,16 @@ function App() {
       </header>
 
       <main className="main">
-        <StatsCards stats={stats} />
+        <StatsCards
+          stats={getFilteredStats()}
+          selectedEndpoint={selectedEndpoint}
+        />
         <div className="charts-row">
-          <LatencyChart data={stats?.timeSeriesData || []} />
+          <LatencyChart
+            data={stats?.timeSeriesData || []}
+            selectedEndpoint={selectedEndpoint}
+            onEndpointChange={setSelectedEndpoint}
+          />
           <StatusCodeChart data={stats?.statusCodeDistribution || {}} />
         </div>
         <div className="bottom-row">

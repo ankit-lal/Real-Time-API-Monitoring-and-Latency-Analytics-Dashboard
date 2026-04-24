@@ -1,6 +1,6 @@
 import React from 'react';
 
-function StatsCards({ stats }) {
+function StatsCards({ stats, selectedEndpoint }) {
   if (!stats) return <div className="stats-grid loading">Loading stats...</div>;
 
   const cards = [
@@ -16,12 +16,7 @@ function StatsCards({ stats }) {
       icon: '⚡',
       color: stats.avgLatency > 500 ? '#ef4444' : stats.avgLatency > 200 ? '#f59e0b' : '#10b981'
     },
-    {
-      label: 'P95 Latency',
-      value: `${stats.p95Latency}ms`,
-      icon: '📈',
-      color: stats.p95Latency > 1000 ? '#ef4444' : stats.p95Latency > 500 ? '#f59e0b' : '#10b981'
-    },
+   
     {
       label: 'Error Rate',
       value: `${stats.errorRate}%`,
@@ -43,18 +38,25 @@ function StatsCards({ stats }) {
   ];
 
   return (
-    <div className="stats-grid">
-      {cards.map((card, i) => (
-        <div className="stat-card" key={i}>
-          <div className="stat-icon">{card.icon}</div>
-          <div className="stat-info">
-            <div className="stat-value" style={{ color: card.color }}>
-              {card.value}
-            </div>
-            <div className="stat-label">{card.label}</div>
-          </div>
+    <div>
+      {selectedEndpoint !== 'all' && (
+        <div className="endpoint-banner">
+          Showing stats for: <strong>{selectedEndpoint}</strong>
         </div>
-      ))}
+      )}
+      <div className="stats-grid">
+        {cards.map((card, i) => (
+          <div className="stat-card" key={i}>
+            <div className="stat-icon">{card.icon}</div>
+            <div className="stat-info">
+              <div className="stat-value" style={{ color: card.color }}>
+                {card.value}
+              </div>
+              <div className="stat-label">{card.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
