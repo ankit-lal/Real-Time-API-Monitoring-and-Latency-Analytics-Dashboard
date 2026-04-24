@@ -8,8 +8,8 @@ import AlertsPanel from './components/AlertsPanel';
 import SimulatorControls from './components/SimulatorControls';
 import './App.css';
 
-const BACKEND_URL = 'http://localhost:5000';
-const WS_URL = 'ws://localhost:5000';
+const BACKEND_URL = 'https://api-monitor-backend-mrkz.onrender.com';
+const WS_URL = 'wss://api-monitor-backend-mrkz.onrender.com';
 
 function App() {
   const [stats, setStats] = useState(null);

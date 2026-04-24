@@ -5,7 +5,7 @@ import {
   Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 
-const BACKEND_URL = 'http://localhost:5000';
+const BACKEND_URL = 'https://api-monitor-backend-mrkz.onrender.com';
 
 function toIST(timestamp) {
   const date = new Date(timestamp.includes('Z') ? timestamp : timestamp + 'Z');
