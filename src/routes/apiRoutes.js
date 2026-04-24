@@ -422,4 +422,135 @@ router.post('/payments', paymentsLimiter, async (req, res) => {
   });
 });
 
+// ─── INVENTORY APIs ───────────────────────────────────────────
+const inventoryLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 90 });
+
+router.get('/inventory', inventoryLimiter, (req, res) => {
+  randomDelay(res, () => {
+    const outcome = randomOutcome();
+    if (outcome.error) return res.status(outcome.status).json(outcome.body);
+    res.json({
+      success: true,
+      rateLimit: { limit: 90, window: '1 hour' },
+      data: Array.from({ length: 5 }, (_, i) => ({
+        id: uuidv4(),
+        sku: `SKU-${1000 + i}`,
+        product: `Product ${String.fromCharCode(65 + i)}`,
+        stockLevel: Math.floor(Math.random() * 500),
+        reorderPoint: 50,
+        warehouse: ['Delhi', 'Mumbai', 'Bengaluru'][i % 3]
+      }))
+    });
+  });
+});
+
+router.get('/inventory/:id', inventoryLimiter, (req, res) => {
+  randomDelay(res, () => {
+    const outcome = randomOutcome();
+    if (outcome.error) return res.status(outcome.status).json(outcome.body);
+    res.json({
+      success: true,
+      data: {
+        id: req.params.id,
+        sku: `SKU-${Math.floor(Math.random() * 9000) + 1000}`,
+        product: `Product ${['Alpha', 'Beta', 'Gamma'][Math.floor(Math.random() * 3)]}`,
+        stockLevel: Math.floor(Math.random() * 500),
+        reorderPoint: 50,
+        lastRestocked: new Date(Date.now() - Math.random() * 7 * 86400000).toISOString()
+      }
+    });
+  });
+});
+
+router.put('/inventory/:id', inventoryLimiter, (req, res) => {
+  randomDelay(res, () => {
+    const outcome = randomOutcome();
+    if (outcome.error) return res.status(outcome.status).json(outcome.body);
+    res.json({
+      success: true,
+      message: 'Stock level updated',
+      data: { id: req.params.id, updatedAt: new Date().toISOString(), ...req.body }
+    });
+  });
+});
+
+router.post('/inventory/restock', inventoryLimiter, (req, res) => {
+  randomDelay(res, () => {
+    const outcome = randomOutcome();
+    if (outcome.error) return res.status(outcome.status).json(outcome.body);
+    res.status(201).json({
+      success: true,
+      message: 'Restock order placed',
+      data: {
+        restockId: uuidv4(),
+        requestedAt: new Date().toISOString(),
+        estimatedArrival: new Date(Date.now() + 3 * 86400000).toISOString()
+      }
+    });
+  });
+});
+
+// ─── NOTIFICATIONS APIs ───────────────────────────────────────
+const notifLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 120 });
+
+router.get('/notifications', notifLimiter, (req, res) => {
+  randomDelay(res, () => {
+    const outcome = randomOutcome();
+    if (outcome.error) return res.status(outcome.status).json(outcome.body);
+    res.json({
+      success: true,
+      rateLimit: { limit: 120, window: '1 hour' },
+      data: Array.from({ length: 6 }, (_, i) => ({
+        id: uuidv4(),
+        type: ['alert', 'info', 'warning', 'success'][i % 4],
+        message: `Notification message ${i + 1}`,
+        read: Math.random() > 0.4,
+        createdAt: new Date(Date.now() - i * 600000).toISOString()
+      }))
+    });
+  });
+});
+
+router.get('/notifications/unread', notifLimiter, (req, res) => {
+  randomDelay(res, () => {
+    const outcome = randomOutcome();
+    if (outcome.error) return res.status(outcome.status).json(outcome.body);
+    const count = Math.floor(Math.random() * 10);
+    res.json({
+      success: true,
+      unreadCount: count,
+      data: Array.from({ length: count }, () => ({
+        id: uuidv4(),
+        type: ['alert', 'warning'][Math.floor(Math.random() * 2)],
+        message: `Unread alert: ${['High latency detected', 'Error rate spike', 'Rate limit hit', 'New user registered'][Math.floor(Math.random() * 4)]}`,
+        createdAt: new Date(Date.now() - Math.random() * 3600000).toISOString()
+      }))
+    });
+  });
+});
+
+router.put('/notifications/:id/read', notifLimiter, (req, res) => {
+  randomDelay(res, () => {
+    const outcome = randomOutcome();
+    if (outcome.error) return res.status(outcome.status).json(outcome.body);
+    res.json({
+      success: true,
+      message: 'Notification marked as read',
+      data: { id: req.params.id, read: true, readAt: new Date().toISOString() }
+    });
+  });
+});
+
+router.delete('/notifications/:id', notifLimiter, (req, res) => {
+  randomDelay(res, () => {
+    const outcome = randomOutcome();
+    if (outcome.error) return res.status(outcome.status).json(outcome.body);
+    res.json({
+      success: true,
+      message: 'Notification deleted',
+      data: { id: req.params.id, deletedAt: new Date().toISOString() }
+    });
+  });
+});
+
 module.exports = router;

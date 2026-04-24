@@ -10,7 +10,14 @@ const ENDPOINTS = [
   { path: '/api/auth/login', methods: ['POST'], weight: 15 },
   { path: '/api/auth/logout', methods: ['POST'], weight: 8 },
   { path: '/api/payments', methods: ['POST'], weight: 12 },
-  { path: '/api/search', methods: ['GET'], weight: 18 }
+  { path: '/api/search', methods: ['GET'], weight: 18 },
+  { path: '/api/inventory', methods: ['GET', 'POST'], weight: 20 },
+  { path: '/api/inventory/:id', methods: ['GET', 'PUT'], weight: 14 },
+  { path: '/api/inventory/restock', methods: ['POST'], weight: 10 },
+  { path: '/api/notifications', methods: ['GET'], weight: 22 },
+  { path: '/api/notifications/unread', methods: ['GET'], weight: 18 },
+  { path: '/api/notifications/:id/read', methods: ['PUT'], weight: 12 },
+  { path: '/api/notifications/:id', methods: ['DELETE'], weight: 8 }
 ];
 
 const STATUS_CODE_PROFILES = {

@@ -44,7 +44,8 @@ class MetricsStore {
         totalRequests: 0, avgLatency: 0, p95Latency: 0,
         errorRate: 0, successRate: 100, requestsPerMinute: 0,
         endpointStats: [], statusCodeDistribution: {},
-        methodDistribution: {}, timeSeriesData: []
+        methodDistribution: {}, timeSeriesData: [],
+        thresholds: this.thresholds
       };
     }
 
@@ -54,12 +55,13 @@ class MetricsStore {
 
     const endpointMap = {};
     recent.forEach(l => {
-      if (!endpointMap[l.endpoint]) {
-        endpointMap[l.endpoint] = { count: 0, errors: 0, totalLatency: 0 };
+      const ep = l.endpoint || 'unknown';
+      if (!endpointMap[ep]) {
+        endpointMap[ep] = { count: 0, errors: 0, totalLatency: 0 };
       }
-      endpointMap[l.endpoint].count++;
-      endpointMap[l.endpoint].totalLatency += l.responseTime;
-      if (l.statusCode >= 400) endpointMap[l.endpoint].errors++;
+      endpointMap[ep].count++;
+      endpointMap[ep].totalLatency += l.responseTime || 0;
+      if (l.statusCode >= 400) endpointMap[ep].errors++;
     });
 
     const endpointStats = Object.entries(endpointMap).map(([endpoint, data]) => ({
@@ -77,7 +79,8 @@ class MetricsStore {
 
     const methodDistribution = {};
     recent.forEach(l => {
-      methodDistribution[l.method] = (methodDistribution[l.method] || 0) + 1;
+      const m = l.method || 'UNKNOWN';
+      methodDistribution[m] = (methodDistribution[m] || 0) + 1;
     });
 
     const timeSeriesData = this._buildTimeSeries(recent, windowMinutes);
@@ -106,7 +109,7 @@ class MetricsStore {
     for (let i = bucketCount - 1; i >= 0; i--) {
       const bucketTime = new Date(now - i * bucketSizeMs);
       const key = bucketTime.toISOString().substring(0, 16);
-      buckets[key] = { time: key, requests: 0, errors: 0, avgLatency: 0, totalLatency: 0 };
+      buckets[key] = { time: key, requests: 0, errors: 0, avgLatency: 0, totalLatency: 0, errorRate: 0 };
     }
 
     logs.forEach(l => {
@@ -116,7 +119,7 @@ class MetricsStore {
         const key = bucketTime.toISOString().substring(0, 16);
         if (buckets[key]) {
           buckets[key].requests++;
-          buckets[key].totalLatency += l.responseTime;
+          buckets[key].totalLatency += l.responseTime || 0;
           if (l.statusCode >= 400) buckets[key].errors++;
         }
       }
@@ -130,6 +133,8 @@ class MetricsStore {
   }
 
   _checkAlerts(log) {
+    if (!log || !log.responseTime) return;
+
     if (log.responseTime >= this.thresholds.latencyCritical) {
       this.alerts.unshift({
         id: uuidv4(), timestamp: new Date().toISOString(),
